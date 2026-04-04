@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AGRIDAOUD - Excellence Agricole & Avicole</title>
+    
+    <!-- BIBLIOTHÈQUES EXTERNES -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Outfit:wght@500;700&display=swap" rel="stylesheet">
+
+    <!-- CONFIGURATION TAILWIND (Couleurs personnalisées) -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'agri-green': '#76B82A',
+                        'agri-brown': '#6B3E26',
+                        'agri-dark': '#1a1a1a',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Outfit', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- STYLES PERSONNALISÉS & ANIMATIONS -->
+    <style>
+        [x-cloak] { display: none !important; }
+        body { 
+            overflow-x: hidden; 
+            width: 100%; 
+            margin: 0; 
+            padding: 0; 
+            background-color: #1a1a1a; 
+            -webkit-tap-highlight-color: transparent; 
+        }
+        
+        /* Animation d'apparition au défilement */
+        .reveal { opacity: 0; transform: translateY(20px); transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        /* Animations Clés */
+        @keyframes dynamicZoom { 0% { transform: scale(1); } 100% { transform: scale(1.2); } }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+        @keyframes pulse-whatsapp {
+            0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(37, 211, 102, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+
+        /* Classes d'animation */
+        .animate-shimmer {
+            background: linear-gradient(90deg, #ffffff 0%, #76B82A 50%, #ffffff 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shimmer 6s linear infinite;
+        }
+        .hero-slide { position: absolute; inset: 0; opacity: 0; transition: opacity 1.5s ease-in-out; width: 100%; height: 100%; object-fit: cover; }
+        .hero-slide.active { opacity: 0.6; animation: dynamicZoom 20s linear infinite alternate; }
+        .bg-zoom { animation: dynamicZoom 30s linear infinite alternate; }
+        .animate-whatsapp { animation: pulse-whatsapp 2s infinite; }
+        
+        /* Masquer la barre de défilement */
+        ::-webkit-scrollbar { width: 0px; background: transparent; }
+    </style>
+</head>
+
+<body class="font-sans text-white bg-agri-dark" 
+      x-data="{ 
+        menuOpen: false, 
+        activeSlide: 0, 
+        selectedImg: null,
+        selectedIndex: null,
+        isZoomed: false,
+        zoomScale: 2,
+        imgPos: { x: 0, y: 0 },
+        chatOpen: false,
+        chatStep: 0,
+        selectedExpertise: null,
+        gallery: [
+            'https://i.ibb.co/PGd8J44k/IMG-20260403-WA0038.jpg', 'https://i.ibb.co/Tx0TTrTV/IMG-20260403-WA0044.jpg', 'https://i.ibb.co/JRzsPVMK/IMG-20260403-WA0051.jpg', 'https://i.ibb.co/rK2569yr/IMG-20260403-WA0058.jpg', 'https://i.ibb.co/qzjfZcW/IMG-20260403-WA0065.jpg', 'https://i.ibb.co/cXCnWFk8/IMG-20260403-WA0072.jpg', 'https://i.ibb.co/zhyrD2yJ/IMG-20260403-WA0036.jpg', 'https://i.ibb.co/ycPVT9TD/IMG-20260403-WA0039.jpg', 'https://i.ibb.co/tT6bjfF7/IMG-20260403-WA0040.jpg', 'https://i.ibb.co/kgzsmgjz/IMG-20260403-WA0041.jpg', 'https://i.ibb.co/b5C16wjH/IMG-20260403-WA0042.jpg', 'https://i.ibb.co/6c4r3F96/images-1.jpg', 'https://i.ibb.co/d0WxpzBQ/IMG-20260403-WA0043.jpg', 'https://i.ibb.co/n8VcTG9h/IMG-20260403-WA0045.jpg', 'https://i.ibb.co/GfQ7GRTy/IMG-20260403-WA0046.jpg', 'https://i.ibb.co/M5VdWyKp/IMG-20260403-WA0047.jpg', 'https://i.ibb.co/60mydM3c/IMG-20260403-WA0048.jpg', 'https://i.ibb.co/hJqSbjzL/IMG-20260403-WA0049.jpg', 'https://i.ibb.co/tPnQBBcc/IMG-20260403-WA0050.jpg', 'https://i.ibb.co/vC4B9tqK/IMG-20260403-WA0052.jpg', 'https://i.ibb.co/MDhLzfp6/IMG-20260403-WA0053.jpg', 'https://i.ibb.co/twFWRXtr/IMG-20260403-WA0055.jpg', 'https://i.ibb.co/rGpr18Qm/IMG-20251130-WA0034-1.jpg', 'https://i.ibb.co/tp3Yv9Yx/IMG-20260403-WA0056.jpg', 'https://i.ibb.co/8tfmVC1/IMG-20260403-WA0057.jpg', 'https://i.ibb.co/m5v2ngfm/IMG-20260403-WA0064.jpg', 'https://i.ibb.co/dwzFvZM1/IMG-20260403-WA0063.jpg', 'https://i.ibb.co/sJKVbpwv/IMG-20260403-WA0062.jpg', 'https://i.ibb.co/rKrdGZXk/IMG-20260403-WA0061.jpg', 'https://i.ibb.co/q3T7qQQz/IMG-20260403-WA0060.jpg', 'https://i.ibb.co/Q3g4nDX2/IMG-20260403-WA0066.jpg', 'https://i.ibb.co/nMvJy3KW/IMG-20260403-WA0067.jpg', 'https://i.ibb.co/tphn6cQK/IMG-20260403-WA0068.jpg', 'https://i.ibb.co/B2fStw2W/IMG-20260403-WA0069.jpg', 'https://i.ibb.co/nMww9wj0/IMG-20260403-WA0071.jpg', 'https://i.ibb.co/TB9hnQVp/IMG-20260403-WA0070.jpg', 'https://i.ibb.co/r2PzG2ZC/IMG-20260403-WA0037.jpg', 'https://i.ibb.co/Y4hH5nYM/IMG-0796-copy-1320x880-1.jpg', 'https://i.ibb.co/PG9f7QT2/IMG-0830-copy-1320x880.jpg', 'https://i.ibb.co/BVm8rtft/IMG-0802-copy-1320x880.jpg', 'https://i.ibb.co/6J8XpsqR/IMG-0831-copy0-1320x786.jpg', 'https://i.ibb.co/ZzxT0YvK/photo-2023-10-25-19-31-44.jpg', 'https://i.ibb.co/ccbc6XfX/Screenshot-20260316-233912-Whats-App.jpg', 'https://i.ibb.co/kzcXkQg/Screenshot-20260316-233850-Whats-App.jpg', 'https://i.ibb.co/cSZsNwNV/Screenshot-20260316-233822-Whats-App.jpg', 'https://i.ibb.co/nNrzwfHk/Screenshot-20260316-233838-Whats-App.jpg', 'https://i.ibb.co/TxJW7Hs1/Screenshot-20260316-233746-Whats-App.jpg', 'https://i.ibb.co/ccbhFCCz/breeding-3739221-1280.jpg', 'https://i.ibb.co/WpG2Fm3h/pig-1805354-1280.jpg', 'https://i.ibb.co/0RM0rWxm/1110-F2-1680-A-1800x1012.jpg', 'https://i.ibb.co/zV7F1J6n/combine-recolte-dans-champ-661209-565.jpg', 'https://i.ibb.co/NnrzJnBF/pig-1249586-1280.jpg', 'https://i.ibb.co/hRrgWxSD/breeding-3739223-1280.jpg', 'https://i.ibb.co/zTCQmVZp/istockphoto-1389848476-612x612.jpg', 'https://i.ibb.co/0jGG7Ss4/pig-6476470-1280.jpg', 'https://i.ibb.co/r2V8khy3/livestock-3336558-1280.jpg', 'https://i.ibb.co/MkjwHC2N/images-12.jpg', 'https://i.ibb.co/Gv6rRpRN/IMG-20251130-WA0034-1.jpg', 'https://i.ibb.co/qFVhGDJ9/IMG-20251130-WA0035-1.jpg', 'https://i.ibb.co/RTDFGPFH/IMG-20251130-WA0036-1.jpg', 'https://i.ibb.co/JXDk7TX/IMG-20251130-WA0038-1.jpg', 'https://i.ibb.co/q3YkcfNY/IMG-20251130-WA0037-1.jpg', 'https://i.ibb.co/0V2sW6Bx/IMG-20251130-WA0043.jpg', 'https://i.ibb.co/DDnMQD1K/IMG-20251130-WA0042.jpg'
+        ]
+      }" 
+      x-init="setInterval(() => { activeSlide = (activeSlide + 1) % 3 }, 6000)">
+
+    <!-- 1. BARRE DE NAVIGATION (NAVBAR) -->
+    <nav class="fixed top-0 w-full z-[100] bg-agri-dark/80 backdrop-blur-md border-b border-white/10 shadow-lg">
+        <!-- Barre supérieure (Contact) -->
+        <div class="bg-agri-brown text-white py-2 px-4 flex justify-between text-[10px] font-bold uppercase tracking-widest">
+            <div class="flex items-center gap-2"><i data-lucide="phone" class="w-3 h-3"></i> +221 77 279 13 69</div>
+            <div class="flex items-center gap-2"><i data-lucide="map-pin" class="w-3 h-3"></i> Mbour, Sénégal</div>
+        </div>
+        <!-- Logo & Menu -->
+        <div class="flex items-center justify-between h-16 px-4">
+            <a href="#" class="flex flex-col group hover:scale-105 transition-transform">
+                <span class="text-xl font-display font-bold leading-none text-white group-hover:text-agri-green transition-colors">AGRIDAOUD</span>
+                <span class="text-[8px] text-agri-green font-bold tracking-[0.2em] uppercase mt-1">Ici, c'est du concret</span>
+            </a>
+            <button @click="menuOpen = !menuOpen" class="p-2 outline-none text-white">
+                <i data-lucide="menu" x-show="!menuOpen" class="w-8 h-8"></i>
+                <i data-lucide="x" x-show="menuOpen" class="w-8 h-8" x-cloak></i>
+            </button>
+        </div>
+        <!-- Menu Mobile -->
+        <div x-show="menuOpen" x-cloak x-transition class="absolute top-[104px] left-0 w-full bg-agri-dark/95 backdrop-blur-lg border-b border-white/10 shadow-2xl p-8 flex flex-col gap-6">
+            <a href="#" @click="menuOpen = false" class="text-2xl font-bold border-b border-white/10 pb-4 text-white">Accueil</a>
+            <a href="#services" @click="menuOpen = false" class="text-2xl font-bold border-b border-white/10 pb-4 text-white">Expertises</a>
+            <a href="#products" @click="menuOpen = false" class="text-2xl font-bold border-b border-white/10 pb-4 text-white">Produits</a>
+            <a href="#gallery" @click="menuOpen = false" class="text-2xl font-bold border-b border-white/10 pb-4 text-white">Galerie</a>
+            <a href="#contact" @click="menuOpen = false" class="bg-agri-brown text-white p-5 rounded-2xl text-center font-bold text-xl">Contactez-nous</a>
+        </div>
+    </nav>
+
+    <!-- 2. SECTION HERO (ACCUEIL) -->
+    <section class="relative min-h-screen flex items-center justify-center text-center text-white px-4 pt-24 overflow-hidden">
+        <!-- Slider d'arrière-plan -->
+        <div class="absolute inset-0 z-0 bg-agri-dark">
+            <img src="https://i.ibb.co/zhyrD2yJ/IMG-20260403-WA0036.jpg" :class="activeSlide === 0 ? 'active' : ''" class="hero-slide" referrerPolicy="no-referrer">
+            <img src="https://i.ibb.co/r2PzG2ZC/IMG-20260403-WA0037.jpg" :class="activeSlide === 1 ? 'active' : ''" class="hero-slide" referrerPolicy="no-referrer">
+            <img src="https://i.ibb.co/PGd8J44k/IMG-20260403-WA0038.jpg" :class="activeSlide === 2 ? 'active' : ''" class="hero-slide" referrerPolicy="no-referrer">
+            <div class="absolute inset-0 bg-gradient-to-b from-agri-green/30 via-agri-dark/50 to-agri-dark/90"></div>
+        </div>
+        <!-- Contenu Hero -->
+        <div class="relative z-10 w-full">
+            <div class="w-[100px] h-[100px] rounded-full overflow-hidden border-4 border-white shadow-2xl bg-white mx-auto mb-8 flex items-center justify-center" style="animation: float 4s ease-in-out infinite;">
+                <img src="https://i.ibb.co/nqyD48r8/IMG-20251130-WA0039-1.jpg" class="w-full h-full object-contain p-1" referrerPolicy="no-referrer">
+            </div>
+            <h1 class="text-3xl md:text-7xl font-display font-bold mb-6 leading-tight tracking-tight">Consultant agricole élevage <br> et vente de produits avicoles.</h1>
+            <p class="text-base md:text-xl mb-10 opacity-90 max-w-sm mx-auto font-medium">AGRIDAOUD fournit des services agricoles modernes pour relever les défis alimentaires en Afrique.</p>
+            <a href="#services" class="inline-flex items-center gap-3 bg-agri-brown px-10 py-4 rounded-full font-bold text-lg shadow-2xl active:scale-95 transition-transform">Nos Services <i data-lucide="arrow-right"></i></a>
+        </div>
+    </section>
+
+    <!-- 3. SECTION EXPERTISES (SERVICES) -->
+    <section id="services" class="relative py-24 px-4 overflow-hidden border-t border-white/5">
+        <div class="absolute inset-0 z-0">
+            <img src="https://i.ibb.co/ccbhFCCz/breeding-3739221-1280.jpg" class="w-full h-full object-cover opacity-60 bg-zoom" referrerPolicy="no-referrer" loading="lazy">
+            <div class="absolute inset-0 bg-gradient-to-b from-agri-green/20 via-agri-dark/40 to-agri-dark"></div>
+        </div>
+        <div class="relative z-10">
+            <h2 class="text-3xl font-display font-bold text-center mb-16 text-white">Nos <span class="text-agri-green italic">Expertises</span></h2>
+            <div class="grid grid-cols-1 gap-6 max-w-md mx-auto">
+                
+                <!-- Carte Expertise 1 -->
+                <div @click="selectedExpertise = {title:'Conseil Agricole', icon:'lightbulb', img:'https://i.ibb.co/ycPVT9TD/IMG-20260403-WA0039.jpg', details:['Analyse approfondie de votre exploitation.','Gestion de la fertilité des sols.','Optimisation de l\'eau et planification financière.']}" class="reveal cursor-pointer relative p-8 rounded-[2.5rem] overflow-hidden border border-white/10 flex flex-col items-center text-center group shadow-2xl bg-agri-dark/40 backdrop-blur-sm active:scale-95 transition-transform">
+                    <img src="https://i.ibb.co/ycPVT9TD/IMG-20260403-WA0039.jpg" class="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-700" referrerPolicy="no-referrer" loading="lazy">
+                    <div class="absolute inset-0 bg-gradient-to-b from-agri-green/40 via-agri-dark/60 to-agri-dark/90"></div>
+                    <div class="relative z-10 flex flex-col items-center">
+                        <div class="w-14 h-14 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center mb-6 text-white shadow-sm"><i data-lucide="lightbulb"></i></div>
+                        <h3 class="text-xl font-bold mb-2 text-white">Conseil Agricole</h3>
+                        <p class="text-white/90 text-sm font-medium">Accompagnement personnalisé pour optimiser vos rendements.</p>
+                        <span class="mt-4 text-[10px] uppercase tracking-widest font-bold text-agri-green bg-white/10 px-4 py-1 rounded-full backdrop-blur-md border border-white/10">En savoir plus</span>
+                    </div>
+                </div>
+
+                <!-- Carte Expertise 2 -->
+                <div @click="selectedExpertise = {title:'Élevage Avicole', icon:'bird', img:'https://i.ibb.co/tT6bjfF7/IMG-20260403-WA0040.jpg', details:['Rigueur et qualité dans la production.','Installations modernes et saines.','Programmes de prophylaxie rigoureux.']}" class="reveal cursor-pointer relative p-8 rounded-[2.5rem] overflow-hidden border border-white/10 flex flex-col items-center text-center group shadow-2xl bg-agri-dark/40 backdrop-blur-sm active:scale-95 transition-transform">
+                    <img src="https://i.ibb.co/tT6bjfF7/IMG-20260403-WA0040.jpg" class="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-700" referrerPolicy="no-referrer" loading="lazy">
+                    <div class="absolute inset-0 bg-gradient-to-b from-agri-green/40 via-agri-dark/60 to-agri-dark/90"></div>
+                    <div class="relative z-10 flex flex-col items-center">
+                        <div class="w-14 h-14 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center mb-6 text-white shadow-sm"><i data-lucide="bird"></i></div>
+                        <h3 class="text-xl font-bold mb-2 text-white">Élevage Avicole</h3>
+                        <p class="text-white/90 text-sm font-medium">Production de volailles de qualité supérieure aux normes.</p>
+                        <span class="mt-4 text-[10px] uppercase tracking-widest font-bold text-agri-green bg-white/10 px-4 py-1 rounded-full backdrop-blur-md border border-white/10">En savoir plus</span>
+                    </div>
+                </div>
+
+                <!-- Carte Expertise 3 -->
+                <div @click="selectedExpertise = {title:'Fabrication Couveuses', icon:'settings', img:'https://i.ibb.co/kgzsmgjz/IMG-20260403-WA0041.jpg', details:['Conception locale de couveuses automatiques.','Systèmes de contrôle précis de température.','Tests de fiabilité rigoureux en atelier.']}" class="reveal cursor-pointer relative p-8 rounded-[2.5rem] overflow-hidden border border-white/10 flex flex-col items-center text-center group shadow-2xl bg-agri-dark/40 backdrop-blur-sm active:scale-95 transition-transform">
+                    <img src="https://i.ibb.co/kgzsmgjz/IMG-20260403-WA0041.jpg" class="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-700" referrerPolicy="no-referrer" loading="lazy">
+                    <div class="absolute inset-0 bg-gradient-to-b from-agri-green/40 via-agri-dark/60 to-agri-dark/90"></div>
+                    <div class="relative z-10 flex flex-col items-center">
+                        <div class="w-14 h-14 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center mb-6 text-white shadow-sm"><i data-lucide="settings"></i></div>
+                        <h3 class="text-xl font-bold mb-2 text-white">Fabrication Couveuses</h3>
+                        <p class="text-white/90 text-sm font-medium">Conception locale de couveuses automatiques haute performance.</p>
+                        <span class="mt-4 text-[10px] uppercase tracking-widest font-bold text-agri-green bg-white/10 px-4 py-1 rounded-full backdrop-blur-md border border-white/10">En savoir plus</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. SECTION PRODUITS -->
+    <section id="products" class="relative py-24 px-4 overflow-hidden border-t border-white/5">
+        <div class="absolute inset-0 z-0">
+            <img src="https://i.ibb.co/gF6rnJg6/image-agrievolution-2023-10-31-17-24-23.jpg" class="w-full h-full object-cover opacity-60 bg-zoom" referrerPolicy="no-referrer" loading="lazy">
+            <div class="absolute inset-0 bg-gradient-to-b from-agri-green/20 via-agri-dark/40 to-agri-dark"></div>
+        </div>
+        <div class="relative z-10">
+            <h2 class="text-3xl font-display font-bold text-center mb-16 reveal text-white">Nos <span class="text-agri-green italic">Produits</span></h2>
+            <div class="grid grid-cols-1 gap-8 max-w-md mx-auto">
+                <!-- Produit 1 -->
+                <div class="reveal bg-agri-dark/60 backdrop-blur-md rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/10 p-4 relative group">
+                    <img src="https://i.ibb.co/kgzsmgjz/IMG-20260403-WA0041.jpg" class="w-full h-64 object-cover rounded-2xl mb-6 cursor-pointer active:scale-95 transition-transform relative z-20" @click="selectedImg = 'https://i.ibb.co/kgzsmgjz/IMG-20260403-WA0041.jpg'; selectedIndex = null" referrerPolicy="no-referrer">
+                    <div class="relative p-6 rounded-2xl overflow-hidden bg-gradient-to-br from-agri-green/10 to-transparent border border-white/5">
+                        <h3 class="text-xl font-bold mb-2 relative z-10 text-white">Couveuse Professionnelle</h3>
+                        <p class="text-white/90 text-sm mb-4 leading-relaxed relative z-10 font-medium">Système de retournement automatique avec gestion intelligente de l'hygrométrie.</p>
+                        <span class="bg-white text-agri-green px-4 py-1 rounded-full text-[10px] font-bold uppercase relative z-10 shadow-lg">Couveuses</span>
+                    </div>
+                </div>
+                <!-- Produit 2 -->
+                <div class="reveal bg-agri-dark/60 backdrop-blur-md rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/10 p-4 relative group">
+                    <img src="https://i.ibb.co/ccbc6XfX/Screenshot-20260316-233912-Whats-App.jpg" class="w-full h-64 object-cover rounded-2xl mb-6 cursor-pointer active:scale-95 transition-transform relative z-20" @click="selectedImg = 'https://i.ibb.co/ccbc6XfX/Screenshot-20260316-233912-Whats-App.jpg'; selectedIndex = null" referrerPolicy="no-referrer">
+                    <div class="relative p-6 rounded-2xl overflow-hidden bg-gradient-to-br from-agri-green/10 to-transparent border border-white/5">
+                        <h3 class="text-xl font-bold mb-2 relative z-10 text-white">Modèle AGRIDAOUD</h3>
+                        <p class="text-white/90 text-sm mb-4 leading-relaxed relative z-10 font-medium">Couveuse robuste conçue localement pour une fiabilité maximale en élevage.</p>
+                        <span class="bg-white text-agri-green px-4 py-1 rounded-full text-[10px] font-bold uppercase relative z-10 shadow-lg">Couveuses</span>
+                    </div>
+                </div>
+                <!-- Produit 3 -->
+                <div class="reveal bg-agri-dark/60 backdrop-blur-md rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/10 p-4 relative group">
+                    <img src="https://i.ibb.co/sJKVbpwv/IMG-20260403-WA0062.jpg" class="w-full h-64 object-cover rounded-2xl mb-6 cursor-pointer active:scale-95 transition-transform relative z-20" @click="selectedImg = 'https://i.ibb.co/sJKVbpwv/IMG-20260403-WA0062.jpg'; selectedIndex = null" referrerPolicy="no-referrer">
+                    <div class="relative p-6 rounded-2xl overflow-hidden bg-gradient-to-br from-agri-green/10 to-transparent border border-white/5">
+                        <h3 class="text-xl font-bold mb-2 relative z-10 text-white">Couveuse Industrielle</h3>
+                        <p class="text-white/90 text-sm mb-4 leading-relaxed relative z-10 font-medium">Capacité accrue pour les exploitations avicoles de grande envergure.</p>
+                        <span class="bg-white text-agri-green px-4 py-1 rounded-full text-[10px] font-bold uppercase relative z-10 shadow-lg">Couveuses</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. SECTION GALERIE -->
+    <section id="gallery" class="relative py-24 px-4 overflow-hidden border-t border-white/5">
+        <div class="absolute inset-0 z-0">
+            <img src="https://i.ibb.co/RTDFGPFH/IMG-20251130-WA0036-1.jpg" class="w-full h-full object-cover opacity-60 bg-zoom" referrerPolicy="no-referrer" loading="lazy">
+            <div class="absolute inset-0 bg-gradient-to-b from-agri-green/20 via-agri-dark/40 to-agri-dark"></div>
+        </div>
+        <div class="relative z-10">
+            <h2 class="text-3xl font-display font-bold text-center mb-16 reveal text-white">Notre <span class="text-agri-green italic">Galerie</span></h2>
+            <div class="flex flex-col gap-6 max-w-md mx-auto">
+                <template x-for="(img, index) in gallery" :key="index">
+                    <div class="rounded-3xl overflow-hidden shadow-xl active:scale-95 transition-transform cursor-pointer" @click="selectedImg = img; selectedIndex = index">
+                        <img :src="img" class="w-full h-auto object-cover" referrerPolicy="no-referrer" loading="lazy">
+                    </div>
+                </template>
+            </div>
+        </div>
+    </section>
+
+    <!-- 6. SECTION CONTACT (CTA) -->
+    <section id="contact" class="relative py-24 px-4 overflow-hidden border-t border-white/5">
+        <div class="absolute inset-0 z-0">
+            <img src="https://i.ibb.co/ccbhFCCz/breeding-3739221-1280.jpg" class="w-full h-full object-cover opacity-60 bg-zoom" referrerPolicy="no-referrer" loading="lazy">
+            <div class="absolute inset-0 bg-gradient-to-b from-agri-green/20 via-agri-dark/40 to-agri-dark"></div>
+        </div>
+        <div class="relative z-10 max-w-4xl mx-auto">
+            <div class="relative overflow-hidden rounded-[3rem] p-12 text-center text-white shadow-2xl reveal border border-white/20 group">
+                <img src="https://i.ibb.co/ccbhFCCz/breeding-3739221-1280.jpg" class="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-700" referrerPolicy="no-referrer">
+                <div class="absolute inset-0 bg-gradient-to-b from-agri-green/60 via-agri-dark/70 to-agri-dark/90"></div>
+                <div class="relative z-10">
+                    <h2 class="text-4xl font-display font-bold mb-8 leading-tight">Prêt à booster votre production ?</h2>
+                    <p class="mb-10 text-lg opacity-90">Contactez AGRIDAOUD dès aujourd'hui pour un accompagnement sur mesure.</p>
+                    <div class="flex flex-col sm:flex-row gap-6 justify-center">
+                        <a href="mailto:Agridaouduniver@gmail.com" class="bg-white text-agri-green px-12 py-5 rounded-full font-bold shadow-xl hover:scale-105 transition-transform flex items-center justify-center gap-3">
+                            <i data-lucide="mail"></i> Email
+                        </a>
+                        <a href="tel:+221772791369" class="bg-agri-brown text-white px-12 py-5 rounded-full font-bold shadow-xl hover:scale-105 transition-transform flex items-center justify-center gap-3">
+                            <i data-lucide="phone"></i> Appeler
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 7. PIED DE PAGE (FOOTER) -->
+    <footer class="relative bg-agri-dark text-white py-24 px-6 text-center overflow-hidden border-t border-white/5">
+        <div class="absolute inset-0 z-0">
+            <img src="https://i.ibb.co/RTDFGPFH/IMG-20251130-WA0036-1.jpg" class="w-full h-full object-cover opacity-60" referrerPolicy="no-referrer">
+            <div class="absolute inset-0 bg-gradient-to-b from-agri-dark/80 to-agri-dark"></div>
+        </div>
+        <div class="relative z-10">
+            <h4 class="text-3xl font-display font-bold mb-2 animate-shimmer">AGRIDAOUD</h4>
+            <p class="text-agri-green text-xs font-bold uppercase tracking-widest mb-8">Ici, c'est du concret</p>
+            <p class="text-white/40 text-[10px]">© 2026 AGRIDAOUD. Tous droits réservés.</p>
+        </div>
+    </footer>
+
+    <!-- 8. BOUTON WHATSAPP (STYLE ICONE APP) -->
+    <a href="https://wa.me/221772791369" target="_blank" class="fixed bottom-6 right-6 w-16 h-16 bg-gradient-to-br from-[#2be375] to-[#25D366] rounded-[1.4rem] shadow-[0_15px_30px_-5px_rgba(37,211,102,0.4),inset_0_2px_4px_rgba(255,255,255,0.5),inset_0_-2px_4px_rgba(0,0,0,0.1)] z-[150] active:scale-90 transition-all duration-300 flex items-center justify-center animate-whatsapp group overflow-hidden border border-white/20">
+        <svg viewBox="0 0 24 24" class="w-10 h-10 fill-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.2)]" xmlns="http://www.w3.org/2000/svg">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.414 0 .018 5.396.015 12.03c0 2.12.542 4.19 1.57 6.05L0 24l6.117-1.605a11.815 11.815 0 005.933 1.598h.005c6.637 0 12.032-5.395 12.035-12.03a11.777 11.777 0 00-3.41-8.48z"/>
+        </svg>
+    </a>
+
+    <!-- 9. RÉPONDEUR AUTOMATIQUE (CHATBOT) -->
+    <div class="fixed bottom-6 left-6 z-[200]">
+        <!-- Fenêtre de Chat -->
+        <div x-show="chatOpen" x-cloak x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-10 scale-90" x-transition:leave="transition ease-in duration-200" class="absolute bottom-20 left-0 w-72 bg-agri-dark border border-white/10 rounded-3xl shadow-2xl overflow-hidden backdrop-blur-xl">
+            <div class="bg-agri-green p-4 flex items-center gap-3">
+                <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center"><i data-lucide="bot" class="text-white w-6 h-6"></i></div>
+                <div>
+                    <p class="text-white font-bold text-sm">Assistant AGRIDAOUD</p>
+                    <p class="text-white/70 text-[10px] flex items-center gap-1"><span class="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></span> En ligne</p>
+                </div>
+            </div>
+            <div class="p-4 max-h-80 overflow-y-auto space-y-4 bg-agri-dark/40">
+                <div class="bg-white/5 p-3 rounded-2xl rounded-bl-none border border-white/5">
+                    <p class="text-xs text-white/90">Bonjour ! Je suis l'assistant automatique d'AGRIDAOUD. Comment puis-je vous aider aujourd'hui ?</p>
+                </div>
+                <!-- Menu Principal -->
+                <template x-if="chatStep === 0">
+                    <div class="flex flex-col gap-2">
+                        <button @click="chatStep = 1" class="text-left bg-agri-green/20 hover:bg-agri-green/40 border border-agri-green/30 p-2 rounded-xl text-[10px] transition-colors">📦 Nos produits disponibles</button>
+                        <button @click="chatStep = 2" class="text-left bg-agri-green/20 hover:bg-agri-green/40 border border-agri-green/30 p-2 rounded-xl text-[10px] transition-colors">👨‍🌾 Conseil en élevage</button>
+                        <button @click="chatStep = 3" class="text-left bg-agri-green/20 hover:bg-agri-green/40 border border-agri-green/30 p-2 rounded-xl text-[10px] transition-colors">📍 Où nous trouver ?</button>
+                    </div>
+                </template>
+                <!-- Étape Produits -->
+                <template x-if="chatStep === 1">
+                    <div class="space-y-3">
+                        <div class="bg-white/5 p-3 rounded-2xl rounded-bl-none border border-white/5">
+                            <p class="text-xs text-white/90">Nous proposons des couveuses, des poussins, des œufs et du poulet. Souhaitez-vous voir le catalogue ?</p>
+                        </div>
+                        <a href="#products" @click="chatOpen = false" class="block text-center bg-agri-green p-2 rounded-xl text-[10px] font-bold">Voir les produits</a>
+                        <button @click="chatStep = 0" class="text-[10px] text-white/50 underline w-full">Retour</button>
+                    </div>
+                </template>
+                <!-- Étape Conseil -->
+                <template x-if="chatStep === 2">
+                    <div class="space-y-3">
+                        <div class="bg-white/5 p-3 rounded-2xl rounded-bl-none border border-white/5">
+                            <p class="text-xs text-white/90">Nos experts sont là pour vous accompagner. Appelez-nous directement !</p>
+                        </div>
+                        <a href="tel:+221772791369" class="block text-center bg-agri-brown p-2 rounded-xl text-[10px] font-bold">Appeler un expert</a>
+                        <button @click="chatStep = 0" class="text-[10px] text-white/50 underline w-full">Retour</button>
+                    </div>
+                </template>
+                <!-- Étape Localisation -->
+                <template x-if="chatStep === 3">
+                    <div class="space-y-3">
+                        <div class="bg-white/5 p-3 rounded-2xl rounded-bl-none border border-white/5">
+                            <p class="text-xs text-white/90">Nous sommes basés à Mbour, au Sénégal. Passez nous voir à la ferme !</p>
+                        </div>
+                        <button @click="chatStep = 0" class="text-[10px] text-white/50 underline w-full">Retour</button>
+                    </div>
+                </template>
+            </div>
+        </div>
+        <!-- Bouton Toggle Chat -->
+        <button @click="chatOpen = !chatOpen; if(chatOpen) chatStep = 0" class="w-14 h-14 bg-agri-dark border border-white/10 rounded-full shadow-2xl flex items-center justify-center text-white hover:scale-110 transition-transform relative">
+            <i data-lucide="message-square" x-show="!chatOpen" class="w-6 h-6"></i>
+            <i data-lucide="x" x-show="chatOpen" class="w-6 h-6" x-cloak></i>
+            <span x-show="!chatOpen" class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full border-2 border-agri-dark animate-bounce"></span>
+        </button>
+    </div>
+
+    <!-- 10. VISIONNEUSE D'IMAGES (LIGHTBOX) AVEC ZOOM & PAN -->
+    <div x-show="selectedImg" x-cloak 
+         class="fixed inset-0 z-[300] bg-black/95 flex items-center justify-center p-4 overflow-hidden" 
+         @click="selectedImg = null; selectedIndex = null; isZoomed = false"
+         @keydown.window.escape="selectedImg = null; selectedIndex = null; isZoomed = false"
+         @keydown.window.left="if(selectedIndex !== null) { selectedIndex = (selectedIndex - 1 + gallery.length) % gallery.length; selectedImg = gallery[selectedIndex]; isZoomed = false }"
+         @keydown.window.right="if(selectedIndex !== null) { selectedIndex = (selectedIndex + 1) % gallery.length; selectedImg = gallery[selectedIndex]; isZoomed = false }">
+        
+        <button class="absolute top-6 right-6 text-white z-[310]"><i data-lucide="x" class="w-10 h-10"></i></button>
+        
+        <!-- Bouton Précédent -->
+        <button x-show="selectedIndex !== null && !isZoomed" 
+                @click.stop="selectedIndex = (selectedIndex - 1 + gallery.length) % gallery.length; selectedImg = gallery[selectedIndex]" 
+                class="absolute left-4 z-[310] text-white p-3 bg-white/10 rounded-full backdrop-blur-md active:scale-90 transition-transform">
+            <i data-lucide="chevron-left" class="w-8 h-8"></i>
+        </button>
+
+        <!-- Zone d'image avec Zoom et Pan -->
+        <div class="relative w-full h-full flex items-center justify-center cursor-zoom-in overflow-hidden" 
+             :class="isZoomed ? 'cursor-zoom-out' : 'cursor-zoom-in'"
+             @click.stop="isZoomed = !isZoomed; if(!isZoomed) imgPos = {x:0, y:0}"
+             @mousemove="if(isZoomed) { 
+                let rect = $el.getBoundingClientRect();
+                imgPos.x = (($event.clientX - rect.left) / rect.width - 0.5) * -100;
+                imgPos.y = (($event.clientY - rect.top) / rect.height - 0.5) * -100;
+             }"
+             @touchmove="if(isZoomed) {
+                let rect = $el.getBoundingClientRect();
+                let touch = $event.touches[0];
+                imgPos.x = ((touch.clientX - rect.left) / rect.width - 0.5) * -100;
+                imgPos.y = ((touch.clientY - rect.top) / rect.height - 0.5) * -100;
+             }">
+            <img :src="selectedImg" 
+                 class="max-w-full max-h-[85vh] rounded-xl shadow-2xl transition-transform duration-300 ease-out" 
+                 :style="isZoomed ? `transform: scale(${zoomScale}) translate(${imgPos.x}%, ${imgPos.y}%)` : 'transform: scale(1) translate(0,0)'"
+                 referrerPolicy="no-referrer">
+        </div>
+
+        <!-- Bouton Suivant -->
+        <button x-show="selectedIndex !== null && !isZoomed" 
+                @click.stop="selectedIndex = (selectedIndex + 1) % gallery.length; selectedImg = gallery[selectedIndex]" 
+                class="absolute right-4 z-[310] text-white p-3 bg-white/10 rounded-full backdrop-blur-md active:scale-90 transition-transform">
+            <i data-lucide="chevron-right" class="w-8 h-8"></i>
+        </button>
+
+        <!-- Compteur & Aide -->
+        <div x-show="selectedIndex !== null && !isZoomed" class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white/10 backdrop-blur-md px-6 py-2 rounded-full text-white/90 text-sm font-bold border border-white/10">
+            <span x-text="selectedIndex + 1"></span> / <span x-text="gallery.length"></span>
+        </div>
+        <div x-show="!isZoomed" class="absolute bottom-20 left-1/2 -translate-x-1/2 text-white/40 text-[10px] pointer-events-none">Cliquez pour zoomer</div>
+    </div>
+
+    <!-- 11. MODALE DÉTAILS EXPERTISES -->
+    <div x-show="selectedExpertise" x-cloak class="fixed inset-0 z-[300] bg-agri-dark/95 backdrop-blur-xl flex items-center justify-center p-4 overflow-y-auto" @click.self="selectedExpertise = null">
+        <div class="relative bg-agri-dark border border-white/10 rounded-[3rem] max-w-2xl w-full p-8 md:p-12 shadow-2xl my-8">
+            <button @click="selectedExpertise = null" class="absolute top-6 right-6 text-white/50 hover:text-white transition-colors"><i data-lucide="x" class="w-8 h-8"></i></button>
+            <div class="flex flex-col items-center text-center">
+                <div class="w-20 h-20 bg-agri-green/20 rounded-3xl flex items-center justify-center mb-8 text-agri-green shadow-inner">
+                    <i :data-lucide="selectedExpertise?.icon" class="w-10 h-10"></i>
+                </div>
+                <h2 class="text-3xl font-display font-bold mb-6 text-white" x-text="selectedExpertise?.title"></h2>
+                <div class="space-y-6 text-left">
+                    <template x-for="(para, i) in selectedExpertise?.details" :key="i">
+                        <p class="text-white/80 leading-relaxed text-lg" x-text="para"></p>
+                    </template>
+                </div>
+                <button @click="selectedExpertise = null" class="mt-12 bg-agri-brown text-white px-10 py-4 rounded-full font-bold shadow-xl active:scale-95 transition-transform">Fermer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS D'INITIALISATION -->
+    <script>
+        // Initialisation des icônes Lucide
+        lucide.createIcons();
+        
+        // Ré-initialisation lors des clics (pour Alpine.js)
+        window.addEventListener('click', () => { setTimeout(() => lucide.createIcons(), 50); });
+        
+        // Observateur pour les animations au défilement
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('active'); });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    </script>
+</body>
+</html>
